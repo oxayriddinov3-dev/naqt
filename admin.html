@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Profili — Tovar, Narx va Xaridlar</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+    body { font-family: 'Inter', sans-serif; background-color: #f1f5f9; }
+  </style>
+</head>
+<body class="min-h-screen text-slate-800">
+
+  <!-- ADMIN KIRISH OYNASI -->
+  <div id="login-screen" class="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-slate-900 via-slate-800 to-emerald-950">
+    <div class="bg-white w-full max-w-sm rounded-2xl shadow-2xl p-7 border border-slate-200">
+      <div class="flex items-center space-x-3 mb-5">
+        <div class="w-11 h-11 rounded-xl bg-slate-900 text-emerald-400 flex items-center justify-center text-xl">
+          <i class="fas fa-user-shield"></i>
+        </div>
+        <div>
+          <h1 class="text-lg font-extrabold text-slate-900">Admin Profili</h1>
+          <p class="text-xs text-slate-500">Tovar, narx va xaridlar boshqaruvi</p>
+        </div>
+      </div>
+
+      <form onsubmit="handleAdminLogin(event)" class="space-y-3.5">
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Login</label>
+          <input id="adm-user" type="text" required placeholder="admin" class="w-full border border-slate-300 rounded-xl px-3.5 py-2 text-sm focus:border-emerald-500 focus:outline-none">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Parol</label>
+          <input id="adm-pass" type="password" required placeholder="1234" class="w-full border border-slate-300 rounded-xl px-3.5 py-2 text-sm focus:border-emerald-500 focus:outline-none">
+        </div>
+        <p id="adm-error" class="hidden text-xs font-semibold text-rose-600 bg-rose-50 border border-rose-200 rounded-lg px-3 py-2">
+          Login yoki parol noto‘g‘ri! (Demo: <b>admin</b> / <b>1234</b>)
+        </p>
+        <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-sm py-2.5 rounded-xl shadow transition">
+          Admin profiliga kirish
+        </button>
+      </form>
+
+      <div class="mt-5 pt-4 border-t border-slate-100 flex items-center justify-between text-xs">
+        <span class="text-slate-400">Demo: <b>admin</b> / <b>1234</b></span>
+        <a href="index.html" class="text-emerald-700 font-bold hover:underline">Xaridor sahifasi →</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADMIN BOSHQARUV PANELI -->
+  <div id="admin-panel" class="hidden min-h-screen flex flex-col">
+    <header class="bg-slate-900 text-white sticky top-0 z-30 shadow-md">
+      <div class="max-w-6xl mx-auto px-4 py-3.5 flex flex-wrap items-center justify-between gap-3">
+        <div class="flex items-center space-x-3">
+          <div class="w-10 h-10 rounded-xl bg-emerald-500 text-slate-950 flex items-center justify-center text-xl font-extrabold">
+            <i class="fas fa-user-shield"></i>
+          </div>
+          <div>
+            <h1 class="text-lg font-extrabold">ADMIN PROFILI</h1>
+            <p class="text-xs text-slate-400">Barcha xaridlar va narxlar nazorati</p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2 sm:gap-3">
+          <a href="index.html" class="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs sm:text-sm font-semibold px-3.5 py-2 rounded-xl border border-slate-700 transition">
+            <i class="fas fa-store mr-1"></i> Do‘konni ko‘rish
+          </a>
+          <button onclick="logoutAdmin()" class="bg-rose-600 hover:bg-rose-700 text-white text-xs sm:text-sm font-bold px-3.5 py-2 rounded-xl transition">
+            <i class="fas fa-sign-out-alt mr-1"></i> Chiqish
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <main class="flex-1 max-w-6xl w-full mx-auto px-4 py-6 space-y-6">
+
+      <!-- Statistika -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
+          <p class="text-xs font-bold text-slate-500 uppercase">Jami xarid summasi</p>
+          <p id="adm-total-sales" class="text-2xl font-extrabold text-emerald-700 mt-1">0 so'm</p>
+        </div>
+        <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
+          <p class="text-xs font-bold text-slate-500 uppercase">Xaridlar soni</p>
+          <p id="adm-total-count" class="text-2xl font-extrabold text-slate-900 mt-1">0 ta</p>
+        </div>
+        <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
+          <p class="text-xs font-bold text-slate-500 uppercase">Faol tovarlar</p>
+          <p id="adm-prod-count" class="text-2xl font-extrabold text-blue-700 mt-1">0 xil</p>
+        </div>
+      </div>
+
+      <!-- XARIDORLAR XARID QILGAN BARChA NARSALAR -->
+      <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-4">
+        <div class="flex items-center justify-between">
+          <h2 class="text-base font-extrabold text-slate-900">
+            <i class="fas fa-receipt text-emerald-600 mr-2"></i> Xaridorlar xarid qilgan barcha narsalar
+          </h2>
+          <span class="text-xs font-semibold text-slate-500">Avtomatik yangilanadi</span>
+        </div>
+        <div id="purchases-list" class="space-y-3"></div>
+      </section>
+
+      <!-- TOVAR VA NARXLARNI BELGILASH -->
+      <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-5">
+        <h2 class="text-base font-extrabold text-slate-900">
+          <i class="fas fa-tags text-emerald-600 mr-2"></i> Yangi tovar va narx belgilash
+        </h2>
+        <form onsubmit="addProductByAdmin(event)" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          <input id="p-name" type="text" required placeholder="Tovar nomi" class="border border-slate-300 rounded-xl px-3.5 py-2 text-sm focus:border-emerald-500 focus:outline-none">
+          <input id="p-price" type="number" min="500" step="500" required placeholder="Narxi (so'm)" class="border border-slate-300 rounded-xl px-3.5 py-2 text-sm focus:border-emerald-500 focus:outline-none">
+          <input id="p-stock" type="number" min="0" value="10" required placeholder="Soni (dona)" class="border border-slate-300 rounded-xl px-3.5 py-2 text-sm focus:border-emerald-500 focus:outline-none">
+          <input id="p-desc" type="text" placeholder="Tavsif (ixtiyoriy)" class="border border-slate-300 rounded-xl px-3.5 py-2 text-sm focus:border-emerald-500 focus:outline-none">
+          <button type="submit" class="sm:col-span-2 lg:col-span-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm py-2.5 rounded-xl transition">
+            Tovarni va narxni saqlash
+          </button>
+        </form>
+
+        <div class="pt-4 border-t border-slate-100 space-y-3">
+          <h3 class="text-sm font-extrabold text-slate-800">Mavjud tovarlar va narxlarni o‘zgartirish</h3>
+          <div id="admin-products-list" class="space-y-2.5"></div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" class="fixed bottom-5 right-5 bg-slate-900 text-white px-5 py-3 rounded-xl shadow-lg transform translate-y-20 opacity-0 transition-all duration-300 z-50 flex items-center space-x-2 text-sm font-semibold">
+    <i class="fas fa-check-circle text-emerald-400"></i>
+    <span id="toast-msg">Saqlandi!</span>
+  </div>
+
+  <script>
+    const ADMIN_AUTH = { user: 'admin', pass: '1234' };
+    const SESSION_KEY = 'admin_logged_in_v1';
+    const STORE_KEY = 'dokon_tizim_v1';
+    const channel = new BroadcastChannel('dokon_sync_channel');
+
+    const initialData = {
+      products: [
+        { id: 1, name: "Simsiz quloqchin", price: 185000, stock: 15, desc: "Uzoq quvvat saqlovchi zamonaviy quloqchin." },
+        { id: 2, name: "Aqlli soat (Smart Watch)", price: 320000, stock: 10, desc: "Bildirishnomalar va kunlik faollik nazorati." },
+        { id: 3, name: "Powerbank 20 000 mAh", price: 240000, stock: 20, desc: "Tezkor quvvatlash funksiyali portativ batareya." },
+        { id: 4, name: "USB-C tez quvvatlagich", price: 95000, stock: 30, desc: "Smartfon va planshetlar uchun xavfsiz adapter." }
+      ],
+      cart: [],
+      purchases: []
+    };
+
+    function getState() {
+      try {
+        const raw = localStorage.getItem(STORE_KEY);
+        if (!raw) {
+          localStorage.setItem(STORE_KEY, JSON.stringify(initialData));
+          return structuredClone(initialData);
+        }
+        return { ...structuredClone(initialData), ...JSON.parse(raw) };
+      } catch {
+        return structuredClone(initialData);
+      }
+    }
+
+    function setState(nextState, broadcast = true) {
+      localStorage.setItem(STORE_KEY, JSON.stringify(nextState));
+      if (broadcast) channel.postMessage({ type: 'UPDATED' });
+    }
+
+    function formatSum(n) {
+      return Number(n || 0).toLocaleString('uz-UZ') + " so'm";
+    }
+
+    function showToast(msg) {
+      const el = document.getElementById('toast');
+      document.getElementById('toast-msg').innerText = msg;
+      el.classList.remove('translate-y-20', 'opacity-0');
+      setTimeout(() => el.classList.add('translate-y-20', 'opacity-0'), 2600);
+    }
+
+    function checkAuth() {
+      const logged = sessionStorage.getItem(SESSION_KEY) === '1';
+      document.getElementById('login-screen').classList.toggle('hidden', logged);
+      document.getElementById('admin-panel').classList.toggle('hidden', !logged);
+      if (logged) renderAdminAll();
+    }
+
+    function handleAdminLogin(e) {
+      e.preventDefault();
+      const u = document.getElementById('adm-user').value.trim();
+      const p = document.getElementById('adm-pass').value.trim();
+      if (u === ADMIN_AUTH.user && p === ADMIN_AUTH.pass) {
+        sessionStorage.setItem(SESSION_KEY, '1');
+        document.getElementById('adm-error').classList.add('hidden');
+        checkAuth();
+        showToast("Admin profiliga xush kelibsiz!");
+      } else {
+        document.getElementById('adm-error').classList.remove('hidden');
+      }
+    }
+
+    function logoutAdmin() {
+      sessionStorage.removeItem(SESSION_KEY);
+      checkAuth();
+    }
+
+    function addProductByAdmin(e) {
+      e.preventDefault();
+      const state = getState();
+      const name = document.getElementById('p-name').value.trim();
+      const price = Math.max(500, Number(document.getElementById('p-price').value) || 0);
+      const stock = Math.max(0, Number(document.getElementById('p-stock').value) || 0);
+      const desc = document.getElementById('p-desc').value.trim() || "Sifatli mahsulot.";
+
+      if (!name || !price) return;
+      state.products.unshift({ id: Date.now(), name, price, stock, desc });
+      document.getElementById('p-name').value = '';
+      document.getElementById('p-price').value = '';
+      document.getElementById('p-stock').value = '10';
+      document.getElementById('p-desc').value = '';
+
+      setState(state);
+      renderAdminAll();
+      showToast(`"${name}" narxi bilan qo‘shildi!`);
+    }
+
+    function updateProduct(id, field, val) {
+      const state = getState();
+      const prod = state.products.find(p => p.id === id);
+      if (!prod) return;
+
+      if (field === 'name') prod.name = val.trim() || prod.name;
+      else if (field === 'price') prod.price = Math.max(500, Number(val) || prod.price);
+      else if (field === 'stock') prod.stock = Math.max(0, Number(val) || 0);
+
+      setState(state);
+      renderAdminAll();
+      showToast("Tovar ma'lumoti yangilandi");
+    }
+
+    function deleteProduct(id) {
+      const state = getState();
+      state.products = state.products.filter(p => p.id !== id);
+      state.cart = state.cart.filter(c => c.id !== id);
+      setState(state);
+      renderAdminAll();
+      showToast("Tovar o‘chirildi");
+    }
+
+    function cyclePurchaseStatus(id) {
+      const state = getState();
+      const item = state.purchases.find(p => p.id === id);
+      if (!item) return;
+      const steps = ["Yangi", "Qabul qilindi", "Yakunlandi"];
+      item.status = steps[(steps.indexOf(item.status) + 1) % steps.length];
+      setState(state);
+      renderAdminAll();
+      showToast(`${item.id}: ${item.status}`);
+    }
+
+    function renderAdminAll() {
+      const state = getState();
+      const totalSales = state.purchases.reduce((s, p) => s + (Number(p.total) || 0), 0);
+
+      document.getElementById('adm-total-sales').innerText = formatSum(totalSales);
+      document.getElementById('adm-total-count').innerText = `${state.purchases.length} ta`;
+      document.getElementById('adm-prod-count').innerText = `${state.products.length} xil`;
+
+      document.getElementById('purchases-list').innerHTML = state.purchases.length ? state.purchases.map(p => `
+        <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 flex flex-wrap items-center justify-between gap-3">
+          <div class="space-y-1">
+            <p class="text-sm font-extrabold text-slate-900">
+              #${p.id} • ${p.buyerName} (${p.buyerPhone}) — <span class="text-emerald-700">${formatSum(p.total)}</span>
+            </p>
+            <p class="text-xs font-semibold text-slate-700">Xarid qilingan narsalar: ${p.summary}</p>
+            <p class="text-[11px] text-slate-400">${p.date}</p>
+          </div>
+          <button onclick="cyclePurchaseStatus('${p.id}')" class="text-xs font-extrabold px-3.5 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-emerald-300 transition">
+            Holat: ${p.status}
+          </button>
+        </div>
+      `).join('') : `<p class="text-sm text-slate-400 py-4">Hozircha xaridorlar xarid qilmagan.</p>`;
+
+      document.getElementById('admin-products-list').innerHTML = state.products.length ? state.products.map(p => `
+        <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200 grid grid-cols-1 sm:grid-cols-12 gap-2.5 items-center">
+          <input type="text" value="${p.name}" onchange="updateProduct(${p.id}, 'name', this.value)" class="sm:col-span-5 border border-slate-300 rounded-lg px-2.5 py-1.5 text-sm font-bold bg-white">
+          <input type="number" step="500" value="${p.price}" onchange="updateProduct(${p.id}, 'price', this.value)" class="sm:col-span-3 border border-slate-300 rounded-lg px-2.5 py-1.5 text-sm font-bold text-emerald-700 bg-white">
+          <input type="number" value="${p.stock}" onchange="updateProduct(${p.id}, 'stock', this.value)" class="sm:col-span-2 border border-slate-300 rounded-lg px-2.5 py-1.5 text-sm font-bold bg-white">
+          <button onclick="deleteProduct(${p.id})" class="sm:col-span-2 text-xs font-bold px-3 py-2 rounded-lg bg-rose-50 text-rose-600 border border-rose-200 hover:bg-rose-100 transition">
+            O‘chirish
+          </button>
+        </div>
+      `).join('') : `<p class="text-sm text-slate-400">Tovarlar yo‘q.</p>`;
+    }
+
+    window.addEventListener('storage', (e) => {
+      if (e.key === STORE_KEY && sessionStorage.getItem(SESSION_KEY) === '1') {
+        renderAdminAll();
+      }
+    });
+    channel.onmessage = () => {
+      if (sessionStorage.getItem(SESSION_KEY) === '1') {
+        renderAdminAll();
+      }
+    };
+
+    checkAuth();
+  </script>
+</body>
+</html>
