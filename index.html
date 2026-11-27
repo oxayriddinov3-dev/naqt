@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SavdoDaftari — Tovar, Savat va Foyda Hisobi</title>
+  <title>Do‘kon — Tovarlar va Savat</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <style>
@@ -15,35 +15,27 @@
 
   <!-- Yuqori panel -->
   <header class="bg-slate-900 text-white sticky top-0 z-30 shadow-md">
-    <div class="max-w-6xl mx-auto px-4 py-3.5 flex flex-wrap items-center justify-between gap-3">
+    <div class="max-w-6xl mx-auto px-4 py-3.5 flex items-center justify-between gap-3">
       <div class="flex items-center space-x-3">
         <div class="w-10 h-10 rounded-xl bg-emerald-500 text-slate-950 flex items-center justify-center text-xl font-extrabold shadow">
-          <i class="fas fa-store"></i>
+          <i class="fas fa-shopping-bag"></i>
         </div>
         <div>
-          <h1 class="text-lg sm:text-xl font-extrabold tracking-tight">SAVDO DAFTARI</h1>
-          <p class="text-xs text-slate-400">Tovarlar • Savat • Kundalik va Oylik Foyda</p>
+          <h1 class="text-lg sm:text-xl font-extrabold tracking-tight">ONLAYN DO‘KON</h1>
+          <p class="text-xs text-slate-400">Admin belgilagan tovarlar va narxlar</p>
         </div>
       </div>
 
-      <button onclick="toggleCartDrawer(true)" class="relative bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs sm:text-sm font-extrabold px-4 py-2 rounded-xl shadow transition flex items-center space-x-2">
-        <i class="fas fa-shopping-cart"></i>
-        <span>Savat</span>
-        <span id="cart-badge" class="bg-slate-950 text-emerald-400 text-xs font-extrabold px-2 py-0.5 rounded-full">0</span>
-      </button>
-    </div>
+      <div class="flex items-center gap-2 sm:gap-3">
+        <a href="admin.html" class="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs sm:text-sm font-semibold px-3.5 py-2 rounded-xl border border-slate-700 transition flex items-center space-x-1.5">
+          <i class="fas fa-user-shield text-emerald-400"></i>
+          <span>Admin ilovasi</span>
+        </a>
 
-    <!-- Bo'limlar menyusi -->
-    <div class="bg-slate-800/90 border-t border-slate-700/70">
-      <div class="max-w-6xl mx-auto px-4 flex overflow-x-auto gap-1 py-2">
-        <button onclick="setTab('products')" id="tab-products" class="tab-btn px-4 py-2 rounded-lg text-xs sm:text-sm font-bold whitespace-nowrap transition">
-          <i class="fas fa-boxes-stacked mr-1.5"></i> Tovarlar va narxlar
-        </button>
-        <button onclick="setTab('orders')" id="tab-orders" class="tab-btn px-4 py-2 rounded-lg text-xs sm:text-sm font-bold whitespace-nowrap transition">
-          <i class="fas fa-receipt mr-1.5"></i> Buyurtmalar
-        </button>
-        <button onclick="setTab('finance')" id="tab-finance" class="tab-btn px-4 py-2 rounded-lg text-xs sm:text-sm font-bold whitespace-nowrap transition">
-          <i class="fas fa-chart-line mr-1.5"></i> Kundalik / Oylik foyda
+        <button onclick="toggleCart(true)" class="relative bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs sm:text-sm font-extrabold px-4 py-2 rounded-xl shadow transition flex items-center space-x-2">
+          <i class="fas fa-shopping-cart"></i>
+          <span>Savat</span>
+          <span id="cart-badge" class="bg-slate-950 text-emerald-400 text-xs font-extrabold px-2 py-0.5 rounded-full">0</span>
         </button>
       </div>
     </div>
@@ -51,112 +43,38 @@
 
   <!-- Asosiy kontent -->
   <main class="flex-1 max-w-6xl w-full mx-auto px-4 py-6 space-y-6">
+    <div class="flex flex-wrap items-center justify-between gap-3">
+      <h2 class="text-lg font-extrabold text-slate-900">Tovarlar katalogi</h2>
+      <input id="search-input" oninput="renderCatalog()" type="text" placeholder="Tovar qidirish..." class="border border-slate-300 bg-white rounded-xl px-3.5 py-2 text-sm w-full sm:w-64 focus:border-emerald-500 focus:outline-none">
+    </div>
 
-    <!-- 1. TOVARLAR VA NARXLAR -->
-    <section id="view-products" class="space-y-6">
-      <form onsubmit="addProduct(event)" class="bg-white p-5 sm:p-6 rounded-2xl shadow-sm border border-slate-200 space-y-4">
-        <h2 class="text-base font-extrabold text-slate-900 flex items-center">
-          <i class="fas fa-plus-circle text-emerald-600 mr-2"></i> Yangi tovar qo‘shish
-        </h2>
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-          <input id="prod-name" type="text" required placeholder="Tovar nomi (masalan: Yog‘ 1L)" class="border border-slate-300 rounded-xl px-3.5 py-2 text-sm focus:border-emerald-500 focus:outline-none">
-          <input id="prod-cost" type="number" min="0" step="500" required placeholder="Tannarxi (so'm)" class="border border-slate-300 rounded-xl px-3.5 py-2 text-sm focus:border-emerald-500 focus:outline-none">
-          <input id="prod-price" type="number" min="500" step="500" required placeholder="Sotuv narxi (so'm)" class="border border-slate-300 rounded-xl px-3.5 py-2 text-sm focus:border-emerald-500 focus:outline-none">
-          <input id="prod-stock" type="number" min="0" value="20" required placeholder="Omborda (dona)" class="border border-slate-300 rounded-xl px-3.5 py-2 text-sm focus:border-emerald-500 focus:outline-none">
-        </div>
-        <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm px-5 py-2.5 rounded-xl transition">
-          Tovarni saqlash
-        </button>
-      </form>
-
-      <div class="bg-white p-5 sm:p-6 rounded-2xl shadow-sm border border-slate-200 space-y-4">
-        <div class="flex flex-wrap items-center justify-between gap-3">
-          <h2 class="text-base font-extrabold text-slate-900">Tovarlar va narxlar ro‘yxati</h2>
-          <input id="search-input" oninput="renderProducts()" type="text" placeholder="Tovar nomini qidirish..." class="border border-slate-300 rounded-xl px-3.5 py-2 text-sm w-full sm:w-64 focus:border-emerald-500 focus:outline-none">
-        </div>
-        <div id="products-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
-      </div>
-    </section>
-
-    <!-- 2. BUYURTMALAR RO'YXATI -->
-    <section id="view-orders" class="hidden space-y-4">
-      <div class="bg-white p-5 sm:p-6 rounded-2xl shadow-sm border border-slate-200">
-        <h2 class="text-base font-extrabold text-slate-900 mb-4">Rasmiylashtirilgan buyurtmalar</h2>
-        <div id="orders-list" class="space-y-3"></div>
-      </div>
-    </section>
-
-    <!-- 3. KUNDALIK VA OYLIK TUSHUM / FOYDA -->
-    <section id="view-finance" class="hidden space-y-6">
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
-          <p class="text-xs font-bold text-slate-500 uppercase">Bugungi tushum</p>
-          <p id="daily-revenue" class="text-2xl font-extrabold text-slate-900 mt-1">0 so'm</p>
-        </div>
-        <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
-          <p class="text-xs font-bold text-slate-500 uppercase">Bugungi sof foyda</p>
-          <p id="daily-profit" class="text-2xl font-extrabold text-emerald-600 mt-1">0 so'm</p>
-        </div>
-        <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
-          <p class="text-xs font-bold text-slate-500 uppercase">Oylik tushum</p>
-          <p id="monthly-revenue" class="text-2xl font-extrabold text-blue-700 mt-1">0 so'm</p>
-        </div>
-        <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
-          <p class="text-xs font-bold text-slate-500 uppercase">Oylik sof foyda</p>
-          <p id="monthly-profit" class="text-2xl font-extrabold text-emerald-700 mt-1">0 so'm</p>
-        </div>
-      </div>
-
-      <div class="bg-white p-5 sm:p-6 rounded-2xl shadow-sm border border-slate-200">
-        <h2 class="text-base font-extrabold text-slate-900 mb-4">Sotuvlar tarixi (Tushum va Foyda)</h2>
-        <div class="overflow-x-auto">
-          <table class="w-full text-left border-collapse text-sm">
-            <thead class="bg-slate-50 text-slate-600 text-xs uppercase">
-              <tr>
-                <th class="p-3">Sana</th>
-                <th class="p-3">Tarkibi</th>
-                <th class="p-3">To‘lov turi</th>
-                <th class="p-3 text-right">Tushum</th>
-                <th class="p-3 text-right">Foyda</th>
-              </tr>
-            </thead>
-            <tbody id="finance-table" class="divide-y divide-slate-100"></tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-
+    <div id="catalog-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"></div>
   </main>
 
   <!-- Savat paneli -->
   <div id="cart-drawer" class="fixed inset-0 z-50 hidden">
-    <div onclick="toggleCartDrawer(false)" class="fixed inset-0 bg-black/50 backdrop-blur-xs"></div>
+    <div onclick="toggleCart(false)" class="fixed inset-0 bg-black/50 backdrop-blur-xs"></div>
     <aside class="fixed right-0 top-0 h-full w-full max-w-md bg-white shadow-2xl flex flex-col justify-between z-10">
       <div class="p-5 border-b border-slate-200 flex items-center justify-between">
         <h3 class="text-lg font-extrabold text-slate-900"><i class="fas fa-shopping-cart text-emerald-600 mr-2"></i> Savat</h3>
-        <button onclick="toggleCartDrawer(false)" class="text-slate-500 hover:text-slate-800 text-xl">
+        <button onclick="toggleCart(false)" class="text-slate-500 hover:text-slate-800 text-xl">
           <i class="fas fa-times"></i>
         </button>
       </div>
 
       <div id="cart-items" class="flex-1 overflow-y-auto p-5 space-y-3"></div>
 
-      <form onsubmit="checkoutCart(event)" class="p-5 border-t border-slate-200 bg-slate-50 space-y-3">
+      <form onsubmit="submitPurchase(event)" class="p-5 border-t border-slate-200 bg-slate-50 space-y-3">
         <div class="flex justify-between items-center text-base font-extrabold text-slate-900">
-          <span>Jami:</span>
+          <span>Jami to‘lov:</span>
           <span id="cart-total" class="text-emerald-700">0 so'm</span>
         </div>
 
-        <input id="order-customer" type="text" required placeholder="Xaridor ismi" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm bg-white focus:border-emerald-500 focus:outline-none">
-        <input id="order-phone" type="tel" required placeholder="Telefon (+998 90 ...)" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm bg-white focus:border-emerald-500 focus:outline-none">
-
-        <select id="order-payment" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm bg-white focus:border-emerald-500 focus:outline-none">
-          <option value="Naqd">Naqd to‘lov</option>
-          <option value="Karta">Karta orqali to‘lov</option>
-        </select>
+        <input id="buyer-name" type="text" required placeholder="Ismingiz" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm bg-white focus:border-emerald-500 focus:outline-none">
+        <input id="buyer-phone" type="tel" required placeholder="Telefon raqamingiz (+998 90 ...)" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm bg-white focus:border-emerald-500 focus:outline-none">
 
         <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold py-3 rounded-xl shadow transition">
-          Buyurtmani rasmiylashtirish
+          Xaridni rasmiylashtirish
         </button>
       </form>
     </aside>
@@ -165,44 +83,40 @@
   <!-- Toast -->
   <div id="toast" class="fixed bottom-5 right-5 bg-slate-900 text-white px-5 py-3 rounded-xl shadow-lg transform translate-y-20 opacity-0 transition-all duration-300 z-50 flex items-center space-x-2 text-sm font-semibold">
     <i class="fas fa-check-circle text-emerald-400"></i>
-    <span id="toast-msg">Saqlandi!</span>
+    <span id="toast-msg">Tayyor!</span>
   </div>
 
   <script>
-    const STORAGE_KEY = 'savdo_daftari_v2';
+    const STORE_KEY = 'dokon_tizim_v1';
+    const channel = new BroadcastChannel('dokon_sync_channel');
 
-    function todayISO() {
-      return new Date().toISOString().slice(0, 10);
-    }
-
-    const defaultState = {
-      activeTab: 'products',
+    const initialData = {
       products: [
-        { id: 1, name: "Kungaboqar yog‘i (1L)", cost: 16000, price: 20000, stock: 25 },
-        { id: 2, name: "Shakar (1 kg)", cost: 11000, price: 13500, stock: 40 },
-        { id: 3, name: "Choy (100 gr)", cost: 8000, price: 11000, stock: 18 },
-        { id: 4, name: "Guruch (1 kg)", cost: 14000, price: 18000, stock: 30 }
+        { id: 1, name: "Simsiz quloqchin", price: 185000, stock: 15, desc: "Uzoq quvvat saqlovchi zamonaviy quloqchin." },
+        { id: 2, name: "Aqlli soat (Smart Watch)", price: 320000, stock: 10, desc: "Bildirishnomalar va kunlik faollik nazorati." },
+        { id: 3, name: "Powerbank 20 000 mAh", price: 240000, stock: 20, desc: "Tezkor quvvatlash funksiyali portativ batareya." },
+        { id: 4, name: "USB-C tez quvvatlagich", price: 95000, stock: 30, desc: "Smartfon va planshetlar uchun xavfsiz adapter." }
       ],
       cart: [],
-      orders: [
-        { id: "B-101", date: todayISO(), customer: "Dilshod", phone: "+998 90 111 22 33", payment: "Naqd", summary: "Kungaboqar yog‘i (1L) x2", revenue: 40000, profit: 8000 }
-      ]
+      purchases: []
     };
 
-    function loadState() {
+    function getState() {
       try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        if (!raw) return structuredClone(defaultState);
-        return { ...structuredClone(defaultState), ...JSON.parse(raw) };
+        const raw = localStorage.getItem(STORE_KEY);
+        if (!raw) {
+          localStorage.setItem(STORE_KEY, JSON.stringify(initialData));
+          return structuredClone(initialData);
+        }
+        return { ...structuredClone(initialData), ...JSON.parse(raw) };
       } catch {
-        return structuredClone(defaultState);
+        return structuredClone(initialData);
       }
     }
 
-    let appState = loadState();
-
-    function saveState() {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
+    function setState(nextState, broadcast = true) {
+      localStorage.setItem(STORE_KEY, JSON.stringify(nextState));
+      if (broadcast) channel.postMessage({ type: 'UPDATED' });
     }
 
     function formatSum(n) {
@@ -213,263 +127,156 @@
       const el = document.getElementById('toast');
       document.getElementById('toast-msg').innerText = msg;
       el.classList.remove('translate-y-20', 'opacity-0');
-      setTimeout(() => el.classList.add('translate-y-20', 'opacity-0'), 2500);
+      setTimeout(() => el.classList.add('translate-y-20', 'opacity-0'), 2600);
     }
 
-    function setTab(tab) {
-      appState.activeTab = tab;
-      saveState();
-      renderAll();
-    }
-
-    function updateTabStyles() {
-      const tabs = ['products', 'orders', 'finance'];
-      tabs.forEach(t => {
-        const btn = document.getElementById(`tab-${t}`);
-        const active = appState.activeTab === t;
-        btn.className = `tab-btn px-4 py-2 rounded-lg text-xs sm:text-sm font-bold whitespace-nowrap transition ${
-          active ? 'bg-emerald-500 text-slate-950 shadow' : 'text-slate-300 hover:bg-slate-700/60 hover:text-white'
-        }`;
-        document.getElementById(`view-${t}`).classList.toggle('hidden', !active);
-      });
-    }
-
-    function addProduct(e) {
-      e.preventDefault();
-      const name = document.getElementById('prod-name').value.trim();
-      const cost = Math.max(0, Number(document.getElementById('prod-cost').value) || 0);
-      const price = Math.max(500, Number(document.getElementById('prod-price').value) || 0);
-      const stock = Math.max(0, Number(document.getElementById('prod-stock').value) || 0);
-
-      if (!name || !price) return;
-      appState.products.unshift({ id: Date.now(), name, cost, price, stock });
-      document.getElementById('prod-name').value = '';
-      document.getElementById('prod-cost').value = '';
-      document.getElementById('prod-price').value = '';
-      document.getElementById('prod-stock').value = '20';
-      saveState();
-      renderAll();
-      showToast(`"${name}" qo‘shildi`);
-    }
-
-    function updateProductField(id, field, val) {
-      const p = appState.products.find(x => x.id === id);
-      if (!p) return;
-      if (field === 'name') p.name = val.trim() || p.name;
-      else if (field === 'cost') p.cost = Math.max(0, Number(val) || 0);
-      else if (field === 'price') p.price = Math.max(500, Number(val) || p.price);
-      else if (field === 'stock') p.stock = Math.max(0, Number(val) || 0);
-      saveState();
-      renderProducts();
-      showToast("Yangilandi");
-    }
-
-    function deleteProduct(id) {
-      appState.products = appState.products.filter(x => x.id !== id);
-      appState.cart = appState.cart.filter(c => c.id !== id);
-      saveState();
-      renderAll();
-      showToast("Tovar o‘chirildi");
-    }
-
-    function renderProducts() {
-      const q = (document.getElementById('search-input')?.value || '').toLowerCase().trim();
-      const list = appState.products.filter(p => !q || p.name.toLowerCase().includes(q));
-
-      document.getElementById('products-list').innerHTML = list.length ? list.map(p => {
-        const unitProfit = p.price - p.cost;
-        return `
-          <div class="p-4 rounded-xl border border-slate-200 bg-slate-50/60 flex flex-col justify-between space-y-3">
-            <div class="space-y-2">
-              <input type="text" value="${p.name}" onchange="updateProductField(${p.id}, 'name', this.value)" class="w-full font-extrabold text-sm text-slate-900 bg-white border border-slate-300 rounded-lg px-2.5 py-1.5">
-              <div class="grid grid-cols-3 gap-2 text-xs">
-                <div>
-                  <span class="text-slate-500 block">Tannarx</span>
-                  <input type="number" step="500" value="${p.cost}" onchange="updateProductField(${p.id}, 'cost', this.value)" class="w-full font-bold bg-white border border-slate-300 rounded-lg px-2 py-1 mt-0.5">
-                </div>
-                <div>
-                  <span class="text-slate-500 block">Narxi</span>
-                  <input type="number" step="500" value="${p.price}" onchange="updateProductField(${p.id}, 'price', this.value)" class="w-full font-bold text-emerald-700 bg-white border border-slate-300 rounded-lg px-2 py-1 mt-0.5">
-                </div>
-                <div>
-                  <span class="text-slate-500 block">Qoldiq</span>
-                  <input type="number" value="${p.stock}" onchange="updateProductField(${p.id}, 'stock', this.value)" class="w-full font-bold bg-white border border-slate-300 rounded-lg px-2 py-1 mt-0.5">
-                </div>
-              </div>
-              <p class="text-xs text-slate-500">Foyda/dona: <b class="${unitProfit >= 0 ? 'text-emerald-700' : 'text-rose-600'}">${formatSum(unitProfit)}</b></p>
-            </div>
-
-            <div class="flex items-center justify-between pt-2 border-t border-slate-200">
-              <button onclick="deleteProduct(${p.id})" class="text-xs font-bold text-rose-600 hover:underline">O‘chirish</button>
-              <button onclick="addToCart(${p.id})" ${p.stock <= 0 ? 'disabled' : ''} class="bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-300 text-white text-xs font-bold px-3.5 py-2 rounded-xl transition">
-                <i class="fas fa-plus mr-1"></i> Savatga
-              </button>
-            </div>
-          </div>
-        `;
-      }).join('') : `<p class="text-sm text-slate-400 col-span-full text-center py-6">Tovar topilmadi</p>`;
-    }
-
-    function toggleCartDrawer(open) {
+    function toggleCart(open) {
       document.getElementById('cart-drawer').classList.toggle('hidden', !open);
       renderCart();
     }
 
     function addToCart(id) {
-      const p = appState.products.find(x => x.id === id);
-      if (!p || p.stock <= 0) return;
-      const found = appState.cart.find(c => c.id === id);
-      const currentQty = found ? found.qty : 0;
-      if (currentQty + 1 > p.stock) {
-        showToast("Omborda yetarli qoldiq yo‘q!");
+      const state = getState();
+      const prod = state.products.find(p => p.id === id);
+      if (!prod || prod.stock <= 0) return;
+
+      const existing = state.cart.find(c => c.id === id);
+      const currentQty = existing ? existing.qty : 0;
+      if (currentQty + 1 > prod.stock) {
+        showToast("Omborda yetarli tovar qolmagan!");
         return;
       }
-      if (found) found.qty += 1;
-      else appState.cart.push({ id: p.id, name: p.name, cost: p.cost, price: p.price, qty: 1 });
-      saveState();
-      renderCartBadge();
-      showToast(`${p.name} savatga qo‘shildi`);
+
+      if (existing) existing.qty += 1;
+      else state.cart.push({ id: prod.id, name: prod.name, price: prod.price, qty: 1 });
+
+      setState(state);
+      renderAll();
+      showToast(`${prod.name} savatga qo‘shildi`);
     }
 
-    function changeCartQty(id, delta) {
-      const idx = appState.cart.findIndex(c => c.id === id);
+    function changeQty(id, delta) {
+      const state = getState();
+      const idx = state.cart.findIndex(c => c.id === id);
       if (idx === -1) return;
-      const p = appState.products.find(x => x.id === id);
-      const nextQty = appState.cart[idx].qty + delta;
-      if (nextQty <= 0) appState.cart.splice(idx, 1);
-      else if (p && nextQty > p.stock) {
-        showToast("Ombordagi qoldiqdan oshmasin!");
+
+      const prod = state.products.find(p => p.id === id);
+      const nextQty = state.cart[idx].qty + delta;
+
+      if (nextQty <= 0) state.cart.splice(idx, 1);
+      else if (prod && nextQty > prod.stock) {
+        showToast("Ombordagi miqdordan oshmasin!");
         return;
-      } else appState.cart[idx].qty = nextQty;
-      saveState();
-      renderCart();
-      renderCartBadge();
+      } else state.cart[idx].qty = nextQty;
+
+      setState(state);
+      renderAll();
     }
 
-    function renderCartBadge() {
-      const qty = appState.cart.reduce((s, i) => s + i.qty, 0);
-      document.getElementById('cart-badge').innerText = qty;
+    function submitPurchase(e) {
+      e.preventDefault();
+      const state = getState();
+      if (!state.cart.length) {
+        showToast("Avval savatga tovar qo‘shing!");
+        return;
+      }
+
+      const buyerName = document.getElementById('buyer-name').value.trim();
+      const buyerPhone = document.getElementById('buyer-phone').value.trim();
+      const total = state.cart.reduce((s, item) => s + item.price * item.qty, 0);
+      const itemsSummary = state.cart.map(item => `${item.name} (${item.qty} dona — ${formatSum(item.price * item.qty)})`).join(', ');
+
+      state.cart.forEach(cartItem => {
+        const prod = state.products.find(p => p.id === cartItem.id);
+        if (prod) prod.stock = Math.max(0, prod.stock - cartItem.qty);
+      });
+
+      state.purchases.unshift({
+        id: "X-" + Math.floor(1000 + Math.random() * 9000),
+        date: new Date().toLocaleString('uz-UZ'),
+        buyerName,
+        buyerPhone,
+        items: state.cart.map(i => ({ name: i.name, price: i.price, qty: i.qty })),
+        summary: itemsSummary,
+        total,
+        status: "Yangi"
+      });
+
+      state.cart = [];
+      document.getElementById('buyer-name').value = '';
+      document.getElementById('buyer-phone').value = '';
+
+      setState(state);
+      toggleCart(false);
+      renderAll();
+      showToast("Xaridingiz rasmiylashtirildi va adminga yuborildi!");
+    }
+
+    function renderCatalog() {
+      const state = getState();
+      const q = (document.getElementById('search-input')?.value || '').toLowerCase().trim();
+      const list = state.products.filter(p => !q || p.name.toLowerCase().includes(q) || (p.desc || '').toLowerCase().includes(q));
+
+      document.getElementById('catalog-grid').innerHTML = list.length ? list.map(p => `
+        <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between gap-2 mb-2">
+              <span class="text-xs font-bold px-2.5 py-1 rounded-full ${p.stock > 0 ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700'}">
+                ${p.stock > 0 ? `Sotuvda bor (${p.stock} ta)` : 'Tugagan'}
+              </span>
+            </div>
+            <h3 class="text-lg font-extrabold text-slate-900">${p.name}</h3>
+            <p class="text-xs text-slate-500 mt-1.5 leading-relaxed">${p.desc || ''}</p>
+          </div>
+
+          <div class="mt-5 pt-4 border-t border-slate-100 flex items-center justify-between">
+            <span class="text-base font-extrabold text-slate-900">${formatSum(p.price)}</span>
+            <button onclick="addToCart(${p.id})" ${p.stock <= 0 ? 'disabled' : ''} class="bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-300 text-white text-xs sm:text-sm font-bold px-4 py-2 rounded-xl transition flex items-center space-x-1.5">
+              <i class="fas fa-cart-plus"></i>
+              <span>Savatga</span>
+            </button>
+          </div>
+        </div>
+      `).join('') : `<p class="text-sm text-slate-400 col-span-full text-center py-10">Hozircha tovarlar yo‘q.</p>`;
     }
 
     function renderCart() {
-      const el = document.getElementById('cart-items');
-      const total = appState.cart.reduce((s, i) => s + i.price * i.qty, 0);
+      const state = getState();
+      const qty = state.cart.reduce((s, i) => s + i.qty, 0);
+      const total = state.cart.reduce((s, i) => s + i.price * i.qty, 0);
+      document.getElementById('cart-badge').innerText = qty;
       document.getElementById('cart-total').innerText = formatSum(total);
 
-      if (!appState.cart.length) {
-        el.innerHTML = `<p class="text-sm text-slate-400 text-center py-10">Savat bo‘sh</p>`;
+      const el = document.getElementById('cart-items');
+      if (!state.cart.length) {
+        el.innerHTML = `<p class="text-sm text-slate-400 text-center py-10">Savatingiz bo‘sh</p>`;
         return;
       }
 
-      el.innerHTML = appState.cart.map(i => `
+      el.innerHTML = state.cart.map(i => `
         <div class="flex items-center justify-between bg-slate-50 p-3 rounded-xl border border-slate-200">
           <div>
             <p class="text-sm font-bold text-slate-800">${i.name}</p>
             <p class="text-xs text-slate-500">${formatSum(i.price * i.qty)}</p>
           </div>
           <div class="flex items-center space-x-2">
-            <button type="button" onclick="changeCartQty(${i.id}, -1)" class="w-7 h-7 rounded-lg bg-slate-200 font-bold text-sm">-</button>
+            <button type="button" onclick="changeQty(${i.id}, -1)" class="w-7 h-7 rounded-lg bg-slate-200 font-bold text-sm">-</button>
             <span class="text-sm font-extrabold w-5 text-center">${i.qty}</span>
-            <button type="button" onclick="changeCartQty(${i.id}, 1)" class="w-7 h-7 rounded-lg bg-emerald-500 text-slate-950 font-bold text-sm">+</button>
+            <button type="button" onclick="changeQty(${i.id}, 1)" class="w-7 h-7 rounded-lg bg-emerald-500 text-slate-950 font-bold text-sm">+</button>
           </div>
         </div>
       `).join('');
     }
 
-    function checkoutCart(e) {
-      e.preventDefault();
-      if (!appState.cart.length) {
-        showToast("Savatga tovar qo‘shing!");
-        return;
-      }
-
-      const customer = document.getElementById('order-customer').value.trim();
-      const phone = document.getElementById('order-phone').value.trim();
-      const payment = document.getElementById('order-payment').value;
-      const summary = appState.cart.map(i => `${i.name} x${i.qty}`).join(', ');
-      const revenue = appState.cart.reduce((s, i) => s + i.price * i.qty, 0);
-      const costSum = appState.cart.reduce((s, i) => s + i.cost * i.qty, 0);
-      const profit = revenue - costSum;
-
-      appState.cart.forEach(item => {
-        const prod = appState.products.find(p => p.id === item.id);
-        if (prod) prod.stock = Math.max(0, prod.stock - item.qty);
-      });
-
-      const orderId = "B-" + Math.floor(102 + Math.random() * 890);
-      appState.orders.unshift({
-        id: orderId,
-        date: todayISO(),
-        customer,
-        phone,
-        payment,
-        summary,
-        revenue,
-        profit
-      });
-
-      appState.cart = [];
-      document.getElementById('order-customer').value = '';
-      document.getElementById('order-phone').value = '';
-      saveState();
-      toggleCartDrawer(false);
-      renderAll();
-      showToast("Buyurtma rasmiylashtirildi!");
-    }
-
-    function renderOrders() {
-      document.getElementById('orders-list').innerHTML = appState.orders.length ? appState.orders.map(o => `
-        <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <p class="text-sm font-extrabold text-slate-900">#${o.id} • ${o.customer} (${o.phone}) — <span class="text-emerald-700">${formatSum(o.revenue)}</span></p>
-            <p class="text-xs text-slate-600 mt-0.5">${o.summary} • <b>${o.date}</b></p>
-          </div>
-          <span class="text-xs font-extrabold px-3 py-1 rounded-lg bg-emerald-100 text-emerald-800">
-            ${o.payment}
-          </span>
-        </div>
-      `).join('') : `<p class="text-sm text-slate-400">Hozircha buyurtmalar yo‘q.</p>`;
-    }
-
-    function renderFinance() {
-      const today = todayISO();
-      const monthPrefix = today.slice(0, 7);
-
-      let dRev = 0, dProf = 0, mRev = 0, mProf = 0;
-      appState.orders.forEach(o => {
-        if (o.date === today) {
-          dRev += Number(o.revenue) || 0;
-          dProf += Number(o.profit) || 0;
-        }
-        if ((o.date || '').startsWith(monthPrefix)) {
-          mRev += Number(o.revenue) || 0;
-          mProf += Number(o.profit) || 0;
-        }
-      });
-
-      document.getElementById('daily-revenue').innerText = formatSum(dRev);
-      document.getElementById('daily-profit').innerText = formatSum(dProf);
-      document.getElementById('monthly-revenue').innerText = formatSum(mRev);
-      document.getElementById('monthly-profit').innerText = formatSum(mProf);
-
-      document.getElementById('finance-table').innerHTML = appState.orders.length ? appState.orders.map(o => `
-        <tr>
-          <td class="p-3 text-slate-600">${o.date}</td>
-          <td class="p-3 font-medium text-slate-800">${o.summary}</td>
-          <td class="p-3 text-xs font-bold text-slate-600">${o.payment}</td>
-          <td class="p-3 text-right font-bold text-slate-900">${formatSum(o.revenue)}</td>
-          <td class="p-3 text-right font-extrabold text-emerald-700">${formatSum(o.profit)}</td>
-        </tr>
-      `).join('') : `<tr><td colspan="5" class="p-4 text-center text-slate-400">Sotuvlar hali kiritilmagan</td></tr>`;
-    }
-
     function renderAll() {
-      updateTabStyles();
-      renderProducts();
-      renderCartBadge();
-      renderOrders();
-      renderFinance();
+      renderCatalog();
+      renderCart();
     }
+
+    window.addEventListener('storage', (e) => {
+      if (e.key === STORE_KEY) renderAll();
+    });
+    channel.onmessage = () => renderAll();
 
     renderAll();
   </script>
